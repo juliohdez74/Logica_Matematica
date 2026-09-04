@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lógica Matemática — Proposiciones y Simbología</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12161d;
+    --bg-raise: #1b212b;
+    --bg-card: #1e2530;
+    --line: #313b49;
+    --ink: #e9e5d8;
+    --ink-dim: #a6aebb;
+    --gold: #c9a361;
+    --gold-dim: #8a7549;
+    --true: #7fab8e;
+    --true-bg: rgba(127,171,142,0.12);
+    --false: #c07568;
+    --false-bg: rgba(192,117,104,0.12);
+    --serif: 'Source Serif 4', Georgia, serif;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold-dim); color:#fff;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:0 28px;}
+
+  /* subtle grid texture behind everything */
+  .field{
+    position:relative;
+    overflow:hidden;
+  }
+  .field::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:0.16;
+    pointer-events:none;
+  }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    position:relative;
+    padding:96px 0 72px;
+    border-bottom:1px solid var(--line);
+  }
+  .kicker{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--gold);
+    letter-spacing:0.02em;
+    margin:0 0 18px;
+  }
+  h1{
+    font-size:clamp(38px, 6vw, 58px);
+    line-height:1.05;
+    margin:0 0 22px;
+    font-weight:600;
+    max-width:11ch;
+  }
+  .hero p.lead{
+    font-size:19px;
+    color:var(--ink-dim);
+    max-width:52ch;
+    margin:0 0 44px;
+  }
+
+  .hero-demo{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:28px 30px;
+    max-width:520px;
+  }
+  .hero-demo .demo-label{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-bottom:14px;
+  }
+  .demo-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .letter-toggle{
+    font-family:var(--mono);
+    font-size:22px;
+    font-weight:600;
+    width:52px; height:52px;
+    border-radius:5px;
+    border:1.5px solid var(--line);
+    background:var(--bg-raise);
+    color:var(--ink);
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .15s, background .15s, color .15s;
+  }
+  .letter-toggle.is-true{border-color:var(--true); background:var(--true-bg); color:var(--true);}
+  .letter-toggle.is-false{border-color:var(--false); background:var(--false-bg); color:var(--false);}
+  .op-symbol{font-family:var(--mono); font-size:26px; color:var(--gold);}
+  .arrow-eq{font-family:var(--mono); font-size:20px; color:var(--ink-dim); margin:0 6px;}
+  .result-chip{
+    font-family:var(--mono);
+    font-size:15px;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:5px;
+    border:1.5px solid var(--line);
+    min-width:110px;
+    text-align:center;
+  }
+  .hero-demo .caption{
+    margin-top:16px;
+    font-size:14px;
+    color:var(--ink-dim);
+    font-family:var(--serif);
+  }
+  .hero-demo .caption b{color:var(--ink); font-weight:600;}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:76px 0;}
+  section + section{border-top:1px solid var(--line);}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--gold);
+    margin:0 0 10px;
+  }
+  h2{
+    font-size:clamp(26px,4vw,34px);
+    margin:0 0 16px;
+    font-weight:600;
+  }
+  .section-intro{
+    color:var(--ink-dim);
+    font-size:17px;
+    max-width:58ch;
+    margin:0 0 40px;
+  }
+
+  /* ---------- PROPOSICIONES: comparison ---------- */
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .compare-col{background:var(--bg-card); padding:26px 26px 30px;}
+  .compare-col h3{
+    font-size:18px;
+    margin:0 0 4px;
+    font-weight:600;
+  }
+  .compare-col .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--gold);
+    display:block;
+    margin-bottom:14px;
+  }
+  .compare-col p{color:var(--ink-dim); font-size:15px; margin:0 0 16px;}
+  .example{
+    font-family:var(--mono);
+    font-size:14px;
+    background:var(--bg-raise);
+    border-left:2px solid var(--gold-dim);
+    padding:10px 14px;
+    margin:0 0 8px;
+    color:var(--ink);
+  }
+  @media (max-width:620px){ .compare{grid-template-columns:1fr;} }
+
+  .prop-filter{
+    margin-top:34px;
+  }
+  .prop-filter .filter-label{font-family:var(--mono); font-size:12px; color:var(--ink-dim); margin-bottom:12px;}
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px;}
+  .chip{
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:7px 14px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:var(--bg-raise);
+    color:var(--ink-dim);
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .chip.active{border-color:var(--gold); color:var(--gold); background:rgba(201,163,97,0.08);}
+  .sentence-bank{display:flex; flex-direction:column; gap:8px;}
+  .sentence-item{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:14px 18px;
+    font-size:15px;
+  }
+  .sentence-item .tag2{
+    font-family:var(--mono); font-size:11px; color:var(--ink-dim);
+    border:1px solid var(--line); border-radius:20px; padding:3px 10px; white-space:nowrap;
+  }
+  .sentence-item.hidden{display:none;}
+
+  /* ---------- SIMBOLOGÍA ---------- */
+  .op-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(210px,1fr));
+    gap:12px;
+  }
+  .op-card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:22px 22px 20px;
+    cursor:pointer;
+    transition:border-color .15s;
+  }
+  .op-card:hover, .op-card.open{border-color:var(--gold-dim);}
+  .op-card .glyph{
+    font-family:var(--mono);
+    font-size:34px;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  .op-card .op-name{font-weight:600; font-size:16px; margin-bottom:4px;}
+  .op-card .op-desc{font-size:13.5px; color:var(--ink-dim);}
+  .op-card .op-hint{
+    font-family:var(--mono); font-size:11px; color:var(--gold-dim);
+    margin-top:12px;
+  }
+
+  .table-panel{
+    margin-top:14px;
+    background:var(--bg-raise);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:24px;
+    display:none;
+  }
+  .table-panel.show{display:block;}
+  .table-panel .tp-title{font-family:var(--mono); font-size:13px; color:var(--ink-dim); margin-bottom:14px;}
+  table.truth{
+    width:100%;
+    border-collapse:collapse;
+    font-family:var(--mono);
+    font-size:14px;
+  }
+  table.truth th, table.truth td{
+    padding:10px 8px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+  }
+  table.truth th{color:var(--gold); font-weight:600; font-size:13px;}
+  table.truth td.v-true{color:var(--true);}
+  table.truth td.v-false{color:var(--false);}
+
+  /* ---------- LABORATORIO / PRACTICA ---------- */
+  .lab{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:30px;
+  }
+  .lab-row{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin-bottom:22px;
+  }
+  select.lab-select{
+    font-family:var(--mono);
+    font-size:15px;
+    background:var(--bg-raise);
+    color:var(--ink);
+    border:1.5px solid var(--line);
+    border-radius:5px;
+    padding:10px 12px;
+    cursor:pointer;
+  }
+  select.lab-select:focus, .letter-toggle:focus, .chip:focus{outline:2px solid var(--gold); outline-offset:2px;}
+  .lab-expr{
+    font-family:var(--mono);
+    font-size:22px;
+    background:var(--bg-raise);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:18px 20px;
+    margin-bottom:22px;
+    letter-spacing:0.02em;
+  }
+  .lab-expr .lit{color:var(--ink-dim);}
+  .lab-expr .op{color:var(--gold);}
+  .lab-values{display:flex; gap:24px; align-items:center; margin-bottom:20px; flex-wrap:wrap;}
+  .val-group{display:flex; align-items:center; gap:10px;}
+  .val-group span{font-family:var(--mono); font-size:13px; color:var(--ink-dim);}
+  .lab-result{
+    display:flex; align-items:center; gap:14px;
+  }
+  .lab-result .label{font-family:var(--mono); font-size:13px; color:var(--ink-dim);}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:26px;
+    margin-bottom:14px;
+  }
+  .quiz-q{font-size:16px; margin:0 0 16px; font-weight:500;}
+  .quiz-opts{display:flex; flex-direction:column; gap:8px;}
+  .quiz-opt{
+    text-align:left;
+    font-family:var(--serif);
+    font-size:15px;
+    background:var(--bg-raise);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:12px 16px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color .15s;
+  }
+  .quiz-opt:hover{border-color:var(--gold-dim);}
+  .quiz-opt.correct{border-color:var(--true); background:var(--true-bg); color:var(--true);}
+  .quiz-opt.incorrect{border-color:var(--false); background:var(--false-bg); color:var(--false);}
+  .quiz-opt[disabled]{cursor:default;}
+  .quiz-feedback{
+    font-family:var(--mono); font-size:13px; margin-top:14px; color:var(--ink-dim); display:none;
+  }
+  .quiz-feedback.show{display:block;}
+  .quiz-score{
+    font-family:var(--mono); font-size:14px; color:var(--gold); margin-top:26px;
+  }
+
+  footer{
+    padding:44px 0 60px;
+    color:var(--ink-dim);
+    font-size:13px;
+    font-family:var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<div class="field">
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">LÓGICA MATEMÁTICA · 01</p>
+    <h1>El lenguaje de lo verdadero y lo falso</h1>
+    <p class="lead">Toda proposición tiene un valor: verdadero o falso, nunca ambos ni ninguno. Aquí vas a construir, combinar y evaluar proposiciones con la simbología que usan los matemáticos.</p>
+
+    <div class="hero-demo">
+      <p class="demo-label">TOCA LAS LETRAS PARA CAMBIAR SU VALOR</p>
+      <div class="demo-row">
+        <button class="letter-toggle is-true" id="heroP" data-val="true">p</button>
+        <span class="op-symbol">∧</span>
+        <button class="letter-toggle is-false" id="heroQ" data-val="false">q</button>
+        <span class="arrow-eq">=</span>
+        <span class="result-chip" id="heroResult">—</span>
+      </div>
+      <p class="caption" id="heroCaption">p ∧ q es <b>verdadera</b> solo si <b>p</b> y <b>q</b> son verdaderas al mismo tiempo.</p>
+    </div>
+  </div>
+</header>
+</div>
+
+<!-- ============ TIPOS DE PROPOSICIONES ============ -->
+<section id="tipos">
+  <div class="wrap">
+    <p class="eyebrow">01 · FUNDAMENTOS</p>
+    <h2>Dos tipos de proposiciones</h2>
+    <p class="section-intro">Una proposición es un enunciado que se puede calificar como verdadero o falso, sin ambigüedad. A partir de ahí, todo se divide en dos familias.</p>
+
+    <div class="compare">
+      <div class="compare-col">
+        <h3>Proposición simple</h3>
+        <span class="tag">TAMBIÉN LLAMADA ATÓMICA</span>
+        <p>Expresa una sola idea completa. No contiene conectores lógicos como "y", "o", "si... entonces".</p>
+        <div class="example">p: "El agua hierve a 100 °C."</div>
+        <div class="example">q: "7 es un número primo."</div>
+      </div>
+      <div class="compare-col">
+        <h3>Proposición compuesta</h3>
+        <span class="tag">TAMBIÉN LLAMADA MOLECULAR</span>
+        <p>Une dos o más proposiciones simples mediante un conector lógico. Su valor depende del valor de cada parte.</p>
+        <div class="example">p ∧ q: "El agua hierve a 100 °C y 7 es primo."</div>
+        <div class="example">p → q: "Si llueve, entonces el suelo se moja."</div>
+      </div>
+    </div>
+
+    <div class="prop-filter">
+      <p class="filter-label">FILTRA EL BANCO DE ENUNCIADOS</p>
+      <div class="chip-row" id="chipRow">
+        <button class="chip active" data-filter="todas">Todas</button>
+        <button class="chip" data-filter="simple">Simples</button>
+        <button class="chip" data-filter="compuesta">Compuestas</button>
+      </div>
+      <div class="sentence-bank" id="sentenceBank">
+        <div class="sentence-item" data-type="simple"><span>"Cancún está en Quintana Roo."</span><span class="tag2">simple</span></div>
+        <div class="sentence-item" data-type="compuesta"><span>"Estudio matemáticas o estudio física."</span><span class="tag2">compuesta</span></div>
+        <div class="sentence-item" data-type="simple"><span>"9 es un número impar."</span><span class="tag2">simple</span></div>
+        <div class="sentence-item" data-type="compuesta"><span>"No es cierto que hoy sea lunes."</span><span class="tag2">compuesta</span></div>
+        <div class="sentence-item" data-type="compuesta"><span>"Apruebo el examen si y solo si estudio."</span><span class="tag2">compuesta</span></div>
+        <div class="sentence-item" data-type="simple"><span>"El triángulo tiene tres lados."</span><span class="tag2">simple</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SIMBOLOGÍA ============ -->
+<section id="simbolos">
+  <div class="wrap">
+    <p class="eyebrow">02 · SIMBOLOGÍA</p>
+    <h2>Los cinco conectores</h2>
+    <p class="section-intro">Cada conector tiene un símbolo y una regla fija para combinar valores de verdad. Toca una tarjeta para ver su tabla de verdad completa.</p>
+
+    <div class="op-grid" id="opGrid">
+      <div class="op-card" data-op="neg">
+        <div class="glyph">¬p</div>
+        <div class="op-name">Negación</div>
+        <div class="op-desc">Invierte el valor de una proposición.</div>
+        <div class="op-hint">"no p"</div>
+      </div>
+      <div class="op-card" data-op="conj">
+        <div class="glyph">p ∧ q</div>
+        <div class="op-name">Conjunción</div>
+        <div class="op-desc">Verdadera solo si ambas lo son.</div>
+        <div class="op-hint">"p y q"</div>
+      </div>
+      <div class="op-card" data-op="disy">
+        <div class="glyph">p ∨ q</div>
+        <div class="op-name">Disyunción</div>
+        <div class="op-desc">Verdadera si al menos una lo es.</div>
+        <div class="op-hint">"p o q"</div>
+      </div>
+      <div class="op-card" data-op="cond">
+        <div class="glyph">p → q</div>
+        <div class="op-name">Condicional</div>
+        <div class="op-desc">Falsa solo si p es verdadera y q falsa.</div>
+        <div class="op-hint">"si p, entonces q"</div>
+      </div>
+      <div class="op-card" data-op="bicond">
+        <div class="glyph">p ↔ q</div>
+        <div class="op-name">Bicondicional</div>
+        <div class="op-desc">Verdadera cuando ambas comparten valor.</div>
+        <div class="op-hint">"p si y solo si q"</div>
+      </div>
+    </div>
+
+    <div class="table-panel" id="tablePanel">
+      <p class="tp-title" id="tpTitle">TABLA DE VERDAD</p>
+      <table class="truth" id="tpTable"></table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LABORATORIO ============ -->
+<section id="lab">
+  <div class="wrap">
+    <p class="eyebrow">03 · LABORATORIO</p>
+    <h2>Construye tu propia proposición</h2>
+    <p class="section-intro">Elige un conector y cambia los valores de p y q. La expresión y el resultado se actualizan al instante.</p>
+
+    <div class="lab">
+      <div class="lab-row">
+        <span style="font-family:var(--mono); font-size:13px; color:var(--ink-dim);">CONECTOR</span>
+        <select class="lab-select" id="labOp">
+          <option value="conj">∧ conjunción (p ∧ q)</option>
+          <option value="disy">∨ disyunción (p ∨ q)</option>
+          <option value="cond">→ condicional (p → q)</option>
+          <option value="bicond">↔ bicondicional (p ↔ q)</option>
+          <option value="negp">¬ negación de p</option>
+        </select>
+      </div>
+
+      <div class="lab-expr" id="labExpr"></div>
+
+      <div class="lab-values">
+        <div class="val-group">
+          <span>p =</span>
+          <button class="letter-toggle is-true" id="labP" data-val="true">p</button>
+        </div>
+        <div class="val-group" id="labQGroup">
+          <span>q =</span>
+          <button class="letter-toggle is-false" id="labQ" data-val="false">q</button>
+        </div>
+      </div>
+
+      <div class="lab-result">
+        <span class="label">RESULTADO</span>
+        <span class="result-chip" id="labResult">—</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz">
+  <div class="wrap">
+    <p class="eyebrow">04 · PRÁCTICA</p>
+    <h2>Comprueba lo aprendido</h2>
+    <p class="section-intro">Cinco preguntas cortas. Elige una respuesta para ver si es correcta.</p>
+    <div id="quizContainer"></div>
+    <p class="quiz-score" id="quizScore"></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">LÓGICA MATEMÁTICA — proposiciones, conectores y tablas de verdad.</div>
+</footer>
+
+<script>
+(function(){
+
+  // ---------- HERO DEMO ----------
+  const heroP = document.getElementById('heroP');
+  const heroQ = document.getElementById('heroQ');
+  const heroResult = document.getElementById('heroResult');
+  const heroCaption = document.getElementById('heroCaption');
+
+  function setToggle(btn, val){
+    btn.dataset.val = val;
+    btn.classList.toggle('is-true', val === 'true');
+    btn.classList.toggle('is-false', val === 'false');
+  }
+  function toggleVal(btn){
+    setToggle(btn, btn.dataset.val === 'true' ? 'false' : 'true');
+  }
+
+  function updateHero(){
+    const p = heroP.dataset.val === 'true';
+    const q = heroQ.dataset.val === 'true';
+    const res = p && q;
+    heroResult.textContent = res ? 'VERDADERA' : 'FALSA';
+    heroResult.style.borderColor = res ? 'var(--true)' : 'var(--false)';
+    heroResult.style.color = res ? 'var(--true)' : 'var(--false)';
+    heroResult.style.background = res ? 'var(--true-bg)' : 'var(--false-bg)';
+    heroCaption.innerHTML = 'p ∧ q es <b>' + (res ? 'verdadera' : 'falsa') + '</b> porque p es <b>' + (p ? 'V' : 'F') + '</b> y q es <b>' + (q ? 'V' : 'F') + '</b>, y la conjunción exige que ambas sean verdaderas.';
+  }
+  heroP.addEventListener('click', () => { toggleVal(heroP); updateHero(); });
+  heroQ.addEventListener('click', () => { toggleVal(heroQ); updateHero(); });
+  updateHero();
+
+  // ---------- FILTRO DE ENUNCIADOS ----------
+  const chips = document.querySelectorAll('#chipRow .chip');
+  const items = document.querySelectorAll('#sentenceBank .sentence-item');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const filter = chip.dataset.filter;
+      items.forEach(it => {
+        it.classList.toggle('hidden', filter !== 'todas' && it.dataset.type !== filter);
+      });
+    });
+  });
+
+  // ---------- TABLAS DE VERDAD ----------
+  const opData = {
+    neg:    { title: 'NEGACIÓN — ¬p', cols: ['p','¬p'], rows: [[true,false],[false,true]] },
+    conj:   { title: 'CONJUNCIÓN — p ∧ q', cols: ['p','q','p ∧ q'], rows: [[true,true,true],[true,false,false],[false,true,false],[false,false,false]] },
+    disy:   { title: 'DISYUNCIÓN — p ∨ q', cols: ['p','q','p ∨ q'], rows: [[true,true,true],[true,false,true],[false,true,true],[false,false,false]] },
+    cond:   { title: 'CONDICIONAL — p → q', cols: ['p','q','p → q'], rows: [[true,true,true],[true,false,false],[false,true,true],[false,false,true]] },
+    bicond: { title: 'BICONDICIONAL — p ↔ q', cols: ['p','q','p ↔ q'], rows: [[true,true,true],[true,false,false],[false,true,false],[false,false,true]] },
+  };
+
+  const opCards = document.querySelectorAll('.op-card');
+  const tablePanel = document.getElementById('tablePanel');
+  const tpTitle = document.getElementById('tpTitle');
+  const tpTable = document.getElementById('tpTable');
+  let openOp = null;
+
+  function renderTable(key){
+    const d = opData[key];
+    tpTitle.textContent = d.title;
+    let html = '<tr>' + d.cols.map(c => '<th>'+c+'</th>').join('') + '</tr>';
+    d.rows.forEach(row => {
+      html += '<tr>' + row.map(v => '<td class="'+(v?'v-true':'v-false')+'">'+(v?'V':'F')+'</td>').join('') + '</tr>';
+    });
+    tpTable.innerHTML = html;
+  }
+
+  opCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const key = card.dataset.op;
+      if(openOp === key){
+        tablePanel.classList.remove('show');
+        card.classList.remove('open');
+        openOp = null;
+        return;
+      }
+      opCards.forEach(c => c.classList.remove('open'));
+      card.classList.add('open');
+      renderTable(key);
+      tablePanel.classList.add('show');
+      openOp = key;
+      tablePanel.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+  });
+
+  // ---------- LABORATORIO ----------
+  const labOp = document.getElementById('labOp');
+  const labP = document.getElementById('labP');
+  const labQ = document.getElementById('labQ');
+  const labQGroup = document.getElementById('labQGroup');
+  const labExpr = document.getElementById('labExpr');
+  const labResult = document.getElementById('labResult');
+
+  const symbols = { conj:'∧', disy:'∨', cond:'→', bicond:'↔' };
+  const names = { conj:'p ∧ q', disy:'p ∨ q', cond:'p → q', bicond:'p ↔ q', negp:'¬p' };
+
+  function evalOp(op, p, q){
+    switch(op){
+      case 'conj': return p && q;
+      case 'disy': return p || q;
+      case 'cond': return (!p) || q;
+      case 'bicond': return p === q;
+      case 'negp': return !p;
+    }
+  }
+
+  function updateLab(){
+    const op = labOp.value;
+    const p = labP.dataset.val === 'true';
+    const q = labQ.dataset.val === 'true';
+    labQGroup.style.display = op === 'negp' ? 'none' : 'flex';
+
+    if(op === 'negp'){
+      labExpr.innerHTML = '<span class="op">¬</span><span class="lit">p</span>   &nbsp; donde p = <span class="'+(p?'v-true':'v-false')+'" style="color:'+(p?'var(--true)':'var(--false)')+'">'+(p?'V':'F')+'</span>';
+    } else {
+      labExpr.innerHTML = '<span class="lit">p</span> <span class="op">'+symbols[op]+'</span> <span class="lit">q</span>   &nbsp; donde p = <span style="color:'+(p?'var(--true)':'var(--false)')+'">'+(p?'V':'F')+'</span>, q = <span style="color:'+(q?'var(--true)':'var(--false)')+'">'+(q?'V':'F')+'</span>';
+    }
+
+    const res = evalOp(op, p, q);
+    labResult.textContent = res ? 'VERDADERA' : 'FALSA';
+    labResult.style.borderColor = res ? 'var(--true)' : 'var(--false)';
+    labResult.style.color = res ? 'var(--true)' : 'var(--false)';
+    labResult.style.background = res ? 'var(--true-bg)' : 'var(--false-bg)';
+  }
+
+  labOp.addEventListener('change', updateLab);
+  labP.addEventListener('click', () => { toggleVal(labP); updateLab(); });
+  labQ.addEventListener('click', () => { toggleVal(labQ); updateLab(); });
+  updateLab();
+
+  // ---------- QUIZ ----------
+  const questions = [
+    {
+      q: '¿Cuál de los siguientes enunciados es una proposición compuesta?',
+      opts: ['"La Luna es un satélite."', '"Hoy hace sol y no llueve."', '"5 + 3"', '"¿Qué hora es?"'],
+      correct: 1,
+      why: 'Une dos ideas ("hace sol" y "no llueve") con el conector "y".'
+    },
+    {
+      q: 'Si p es verdadera y q es falsa, ¿cuál es el valor de p ∨ q?',
+      opts: ['Verdadera', 'Falsa', 'No se puede saber', 'Depende de r'],
+      correct: 0,
+      why: 'La disyunción solo es falsa cuando ambas proposiciones son falsas.'
+    },
+    {
+      q: '¿Qué símbolo representa la negación?',
+      opts: ['∧', '↔', '¬', '→'],
+      correct: 2,
+      why: '¬p se lee "no p" e invierte el valor de verdad.'
+    },
+    {
+      q: 'Si p es falsa y q es verdadera, ¿cuál es el valor de p → q?',
+      opts: ['Verdadera', 'Falsa', 'Es una proposición simple', 'No tiene valor'],
+      correct: 0,
+      why: 'El condicional solo es falso cuando el antecedente es verdadero y el consecuente falso; aquí no ocurre.'
+    },
+    {
+      q: '¿Cuándo es verdadera p ↔ q?',
+      opts: ['Cuando p es verdadera', 'Cuando p y q tienen el mismo valor', 'Cuando al menos una es verdadera', 'Nunca'],
+      correct: 1,
+      why: 'La bicondicional es verdadera cuando ambas proposiciones comparten el mismo valor de verdad.'
+    }
+  ];
+
+  const quizContainer = document.getElementById('quizContainer');
+  const quizScore = document.getElementById('quizScore');
+  let score = 0;
+  let answered = 0;
+
+  questions.forEach((item, qi) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+
+    const qEl = document.createElement('p');
+    qEl.className = 'quiz-q';
+    qEl.textContent = (qi+1) + '. ' + item.q;
+    card.appendChild(qEl);
+
+    const optsWrap = document.createElement('div');
+    optsWrap.className = 'quiz-opts';
+
+    const feedback = document.createElement('p');
+    feedback.className = 'quiz-feedback';
+    feedback.textContent = item.why;
+
+    item.opts.forEach((optText, oi) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = optText;
+      btn.addEventListener('click', () => {
+        const allBtns = optsWrap.querySelectorAll('.quiz-opt');
+        if(allBtns[0].disabled) return; // already answered
+        allBtns.forEach((b, idx) => {
+          b.disabled = true;
+          if(idx === item.correct) b.classList.add('correct');
+          else if(idx === oi) b.classList.add('incorrect');
+        });
+        if(oi === item.correct) score++;
+        answered++;
+        feedback.classList.add('show');
+        quizScore.textContent = 'Progreso: ' + answered + ' / ' + questions.length + ' respondidas — ' + score + ' correctas';
+      });
+      optsWrap.appendChild(btn);
+    });
+
+    card.appendChild(optsWrap);
+    card.appendChild(feedback);
+    quizContainer.appendChild(card);
+  });
+  quizScore.textContent = 'Progreso: 0 / ' + questions.length + ' respondidas — 0 correctas';
+
+})();
+</script>
+
+</body>
+</html>
